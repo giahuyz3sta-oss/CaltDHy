@@ -1,0 +1,1154 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CaltDHy – Chọn tháng</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        /* ── RESET ── */
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            height: 100%;
+            font-family: 'Inter', sans-serif;
+            overflow: hidden;
+        }
+
+        body {
+            background:
+                radial-gradient(ellipse at 8% 12%, rgba(0, 200, 170, .28) 0%, transparent 45%),
+                radial-gradient(ellipse at 78% 82%, rgba(110, 0, 180, .35) 0%, transparent 48%),
+                radial-gradient(ellipse at 55% 45%, rgba(170, 20, 90, .18) 0%, transparent 42%),
+                radial-gradient(ellipse at 90% 10%, rgba(80, 0, 140, .22) 0%, transparent 40%),
+                #07101e;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        /* ── ORBS ── */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: 0;
+            animation: drift 14s ease-in-out infinite alternate;
+        }
+
+        .orb-1 {
+            width: 500px;
+            height: 500px;
+            background: rgba(0, 200, 170, .13);
+            top: -120px;
+            left: -80px;
+            animation-duration: 16s;
+        }
+
+        .orb-2 {
+            width: 400px;
+            height: 400px;
+            background: rgba(110, 0, 180, .2);
+            bottom: -60px;
+            right: 0;
+            animation-duration: 19s;
+            animation-delay: -6s;
+        }
+
+        @keyframes drift {
+            from {
+                transform: translate(0, 0)
+            }
+
+            to {
+                transform: translate(22px, -18px)
+            }
+        }
+
+        /* ── PAGE ── */
+        #picker-page {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            flex: 1;
+            transition: opacity .55s ease, transform .55s ease;
+        }
+
+        #picker-page.fade-out {
+            opacity: 0;
+            transform: scale(1.04);
+            pointer-events: none;
+        }
+
+        /* ══════════════════════════════
+        NAVBAR
+    ══════════════════════════════ */
+        .mp-navbar {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 28px;
+            height: 56px;
+            background: rgba(6, 13, 26, .65);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border-bottom: 1px solid rgba(255, 255, 255, .07);
+            flex-shrink: 0;
+            gap: 16px;
+            position: relative;
+            z-index: 50;
+        }
+
+        .mp-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            flex-shrink: 0;
+        }
+
+        .mp-logo svg {
+            width: 26px;
+            height: 26px;
+        }
+
+        .mp-logo-text {
+            font-family: 'Syne', sans-serif;
+            font-size: 16px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00dcc0, #7b2fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Glassmorphism tab pills */
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-tab {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 8px 18px;
+            border-radius: 24px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: inherit;
+            cursor: pointer;
+            border: 1px solid rgba(255, 255, 255, .12);
+            background: rgba(255, 255, 255, .05);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            color: rgba(255, 255, 255, .65);
+            transition: all .25s ease;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+
+        .nav-tab:hover {
+            background: rgba(0, 200, 170, .12);
+            border-color: rgba(0, 220, 190, .55);
+            color: rgba(0, 220, 190, 1);
+            box-shadow: 0 0 14px rgba(0, 200, 170, .25), inset 0 0 8px rgba(0, 200, 170, .06);
+            transform: translateY(-1px);
+        }
+
+        .nav-tab.active {
+            background: rgba(0, 200, 170, .14);
+            border-color: rgba(0, 220, 190, .6);
+            color: rgba(0, 220, 190, 1);
+            box-shadow: 0 0 18px rgba(0, 200, 170, .3);
+        }
+
+        .nav-right {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-shrink: 0;
+        }
+
+        .nav-logout {
+            padding: 7px 14px;
+            border: 1px solid rgba(255, 255, 255, .15);
+            background: rgba(255, 255, 255, .05);
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .55);
+            cursor: pointer;
+            font-family: inherit;
+            transition: all .2s ease;
+        }
+
+        .nav-logout:hover {
+            border-color: rgba(231, 76, 60, .6);
+            color: rgba(231, 76, 60, .9);
+            background: rgba(231, 76, 60, .08);
+        }
+
+        /* ══════════════════════════════
+        HEADER LABEL
+    ══════════════════════════════ */
+        .mp-header {
+            text-align: center;
+            padding: 24px 0 6px;
+            flex-shrink: 0;
+        }
+
+        .mp-header h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(12px, 1.4vw, 15px);
+            font-weight: 600;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            color: rgba(0, 220, 190, .55);
+            margin-bottom: 4px;
+        }
+
+        .mp-header p {
+            font-size: 12px;
+            color: rgba(255, 255, 255, .25);
+        }
+
+        /* ══════════════════════════════
+        SCENE
+    ══════════════════════════════ */
+        .scene {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        /* ══════════════════════════════
+        ORBIT SYSTEM
+        Bubbles are positioned via JS translate() only — no rotation applied,
+        so text is ALWAYS upright regardless of orbit position.
+    ══════════════════════════════ */
+        .orbit-system {
+            position: relative;
+            width: 550px;
+            height: 550px;
+            /* orbit diameter 210*2 + bubble 72 + padding */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Decorative orbit track */
+        .orbit-track {
+            position: absolute;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            border: 1px dashed rgba(255, 255, 255, .07);
+            pointer-events: none;
+        }
+
+        /* ── YEAR HUB ─ max size: orbit_r(210) - bubble_r(36) - gap(18) = 156px → dia 312px ── */
+        .year-hub {
+            position: absolute;
+            width: 312px;
+            height: 312px;
+            border-radius: 50%;
+            background: radial-gradient(circle at 40% 35%, rgba(0, 200, 170, .15), rgba(6, 13, 26, .92) 70%);
+            border: 2px solid rgba(0, 220, 190, .42);
+            box-shadow: 0 0 64px rgba(0, 200, 170, .25), 0 0 24px rgba(0, 200, 170, .15), inset 0 0 50px rgba(0, 200, 170, .08);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(20px);
+            z-index: 5;
+        }
+
+        .year-number {
+            font-family: 'Syne', sans-serif;
+            font-size: 52px;
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #00dcc0 0%, #7b2fff 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .year-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .3);
+            margin-top: 4px;
+        }
+
+        /* Today's date line */
+        .year-today {
+            font-size: 11px;
+            font-weight: 500;
+            color: rgba(0, 220, 190, 0.65);
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
+            white-space: nowrap;
+        }
+
+        /* Edge arrows – absolutely positioned at left/right of hub */
+        .year-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            border: none;
+            background: none;
+            border-radius: 0;
+            cursor: pointer;
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            font-family: inherit;
+            opacity: 0.45;
+            transition: opacity 0.2s ease, color 0.2s ease;
+            z-index: 6;
+        }
+
+        .year-btn.btn-prev {
+            left: 14px;
+        }
+
+        .year-btn.btn-next {
+            right: 14px;
+        }
+
+        .year-btn:hover {
+            opacity: 1;
+            color: rgba(0, 220, 190, 1);
+        }
+
+        /* ── MONTH BUBBLE ── */
+        /* Positioned by JS via style.left / style.top (translate from center).
+       NO rotation is ever applied → text stays 0° upright always. */
+        .month-bubble {
+            position: absolute;
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, .04);
+            border: 1.5px solid rgba(255, 255, 255, .13);
+            backdrop-filter: blur(10px);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background .22s ease, border-color .22s ease,
+                box-shadow .22s ease, opacity .22s ease, transform .22s ease;
+            /* Center: JS sets left/top to (cx - 36, cy - 36) */
+            transform: translate(0, 0);
+        }
+
+        .month-bubble .mon-num {
+            font-family: 'Syne', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            color: rgba(255, 255, 255, .85);
+            line-height: 1;
+        }
+
+        .month-bubble .mon-name {
+            font-size: 9px;
+            font-weight: 500;
+            color: rgba(255, 255, 255, .4);
+            margin-top: 3px;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        .month-bubble.current-month {
+            border-color: rgba(0, 220, 190, .55);
+            background: rgba(0, 200, 170, .1);
+            box-shadow: 0 0 14px rgba(0, 200, 170, .22);
+        }
+
+        /* Orbit-system is "hovered" class → dim non-hovered, pause handled by JS */
+        .orbit-system.is-hovered .month-bubble {
+            opacity: .22;
+        }
+
+        .orbit-system.is-hovered .month-bubble:hover {
+            opacity: 1 !important;
+            transform: scale(1.32) !important;
+            background: rgba(0, 200, 170, .22) !important;
+            border-color: rgba(0, 220, 190, .9) !important;
+            box-shadow: 0 0 0 5px rgba(0, 200, 170, .18), 0 8px 36px rgba(0, 200, 170, .42) !important;
+            z-index: 10;
+        }
+
+        .mp-hint {
+            padding: 12px 0 18px;
+            font-size: 11px;
+            color: rgba(255, 255, 255, .18);
+            letter-spacing: .5px;
+        }
+
+        /* ══════════════════════════════
+        EXPENSE TRACKER MODAL
+    ══════════════════════════════ */
+        .exp-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 900;
+            background: rgba(0, 0, 0, .6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            animation: fadeIn .18s ease;
+        }
+
+        .exp-overlay.hidden {
+            display: none;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0
+            }
+
+            to {
+                opacity: 1
+            }
+        }
+
+        .exp-modal {
+            background: rgba(10, 18, 36, .97);
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 18px;
+            width: 100%;
+            max-width: 660px;
+            max-height: 88vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, .6);
+            backdrop-filter: blur(22px);
+            animation: slideUp .22s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px) scale(.98)
+            }
+
+            to {
+                opacity: 1;
+                transform: none
+            }
+        }
+
+        .exp-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 22px 26px 0;
+        }
+
+        .exp-title {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #00dcc0, #7b2fff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .exp-close {
+            width: 34px;
+            height: 34px;
+            border-radius: 50%;
+            border: none;
+            background: rgba(255, 255, 255, .08);
+            color: rgba(255, 255, 255, .6);
+            font-size: 20px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all .2s ease;
+        }
+
+        .exp-close:hover {
+            background: rgba(231, 76, 60, .25);
+            color: rgba(231, 76, 60, .9);
+        }
+
+        .exp-body {
+            padding: 18px 26px 28px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        /* Budget progress */
+        .budget-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 6px;
+        }
+
+        .budget-label {
+            font-size: 13px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .7);
+        }
+
+        .budget-vals {
+            font-size: 12px;
+            color: rgba(255, 255, 255, .4);
+        }
+
+        .progress-bar-wrap {
+            width: 100%;
+            height: 8px;
+            border-radius: 99px;
+            background: rgba(255, 255, 255, .08);
+            overflow: hidden;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            border-radius: 99px;
+            background: linear-gradient(90deg, #00dcc0, #7b2fff);
+            transition: width .5s ease;
+        }
+
+        /* Budget input row */
+        .budget-input-row {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+        }
+
+        .budget-input-row label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, .5);
+            white-space: nowrap;
+        }
+
+        .exp-input {
+            flex: 1;
+            background: rgba(255, 255, 255, .06);
+            border: 1.5px solid rgba(255, 255, 255, .12);
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: rgba(255, 255, 255, .88);
+            font-size: 14px;
+            font-family: inherit;
+            outline: none;
+            transition: border-color .2s;
+        }
+
+        .exp-input:focus {
+            border-color: rgba(0, 220, 190, .6);
+            box-shadow: 0 0 0 3px rgba(0, 200, 170, .12);
+        }
+
+        .exp-input::placeholder {
+            color: rgba(255, 255, 255, .25);
+        }
+
+        .exp-select {
+            appearance: none;
+            cursor: pointer;
+        }
+
+        /* Add expense form */
+        .add-exp-form {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            background: rgba(255, 255, 255, .03);
+            border: 1px solid rgba(255, 255, 255, .07);
+            border-radius: 12px;
+            padding: 16px;
+        }
+
+        .add-exp-form .form-row-full {
+            grid-column: 1/-1;
+        }
+
+        .field-label {
+            font-size: 11px;
+            font-weight: 600;
+            color: rgba(255, 255, 255, .45);
+            margin-bottom: 4px;
+            letter-spacing: .5px;
+            text-transform: uppercase;
+        }
+
+        .btn-add-exp {
+            grid-column: 1/-1;
+            padding: 11px;
+            border: none;
+            border-radius: 10px;
+            background: linear-gradient(135deg, #00dcc0, #7b2fff);
+            color: #fff;
+            font-size: 14px;
+            font-weight: 700;
+            font-family: inherit;
+            cursor: pointer;
+            transition: opacity .2s, transform .2s;
+        }
+
+        .btn-add-exp:hover {
+            opacity: .88;
+            transform: translateY(-1px);
+        }
+
+        /* Expense table */
+        .exp-table-wrap {
+            overflow-x: auto;
+        }
+
+        .exp-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .exp-table thead th {
+            padding: 8px 12px;
+            text-align: left;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: .6px;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .35);
+            border-bottom: 1px solid rgba(255, 255, 255, .08);
+        }
+
+        .exp-table tbody tr {
+            border-bottom: 1px solid rgba(255, 255, 255, .05);
+            transition: background .15s;
+        }
+
+        .exp-table tbody tr:hover {
+            background: rgba(255, 255, 255, .03);
+        }
+
+        .exp-table td {
+            padding: 10px 12px;
+            color: rgba(255, 255, 255, .75);
+            vertical-align: middle;
+        }
+
+        .td-amount {
+            font-weight: 700;
+            color: #00dcc0;
+        }
+
+        .cat-badge {
+            display: inline-block;
+            padding: 2px 9px;
+            border-radius: 12px;
+            font-size: 10px;
+            font-weight: 600;
+            background: rgba(123, 47, 255, .2);
+            border: 1px solid rgba(123, 47, 255, .3);
+            color: rgba(180, 140, 255, .9);
+        }
+
+        .btn-del {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: rgba(231, 76, 60, .5);
+            font-size: 15px;
+            transition: color .2s;
+            padding: 0;
+        }
+
+        .btn-del:hover {
+            color: rgba(231, 76, 60, .95);
+        }
+
+        .empty-exp {
+            text-align: center;
+            padding: 28px 0;
+            color: rgba(255, 255, 255, .25);
+            font-size: 13px;
+        }
+
+        /* Scrollbar */
+        .exp-modal::-webkit-scrollbar {
+            width: 5px;
+        }
+
+        .exp-modal::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        .exp-modal::-webkit-scrollbar-thumb {
+            background: rgba(0, 220, 190, .25);
+            border-radius: 10px;
+        }
+
+        @media (max-width:640px) {
+            .orbit-system {
+                width: 340px;
+                height: 340px;
+            }
+
+            .orbit-track {
+                width: 260px;
+                height: 260px;
+            }
+
+            .year-hub {
+                width: 180px;
+                height: 180px;
+            }
+
+            .year-number {
+                font-size: 30px;
+            }
+
+            .nav-tab .label {
+                display: none;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+
+    <!-- ══════════════════════════════════════
+     EXPENSE TRACKER MODAL
+══════════════════════════════════════ -->
+    <div class="exp-overlay hidden" id="expOverlay">
+        <div class="exp-modal" id="expModal">
+            <div class="exp-header">
+                <span class="exp-title">💰 Quản lý chi tiêu</span>
+                <button class="exp-close" onclick="closeExpModal()" title="Đóng">×</button>
+            </div>
+            <div class="exp-body">
+
+                <!-- Budget & progress -->
+                <div>
+                    <div class="budget-row">
+                        <span class="budget-label">Ngân sách tháng</span>
+                        <span class="budget-vals" id="budgetVals">0 / 0 ₫</span>
+                    </div>
+                    <div class="progress-bar-wrap">
+                        <div class="progress-bar-fill" id="progressFill" style="width:0%"></div>
+                    </div>
+                    <div class="budget-input-row" style="margin-top:10px;">
+                        <label>Ngân sách (₫):</label>
+                        <input class="exp-input" id="budgetInput" type="number" placeholder="VD: 5000000" min="0"
+                            oninput="saveBudget()" />
+                    </div>
+                </div>
+
+                <!-- Add expense form -->
+                <div class="add-exp-form">
+                    <div>
+                        <div class="field-label">Tên khoản chi</div>
+                        <input class="exp-input" id="newName" placeholder="VD: Ăn sáng..." />
+                    </div>
+                    <div>
+                        <div class="field-label">Số tiền (₫)</div>
+                        <input class="exp-input" id="newAmt" type="number" min="0" placeholder="VD: 50000" />
+                    </div>
+                    <div>
+                        <div class="field-label">Phân loại</div>
+                        <select class="exp-input exp-select" id="newCat">
+                            <option value="Ăn uống">🍜 Ăn uống</option>
+                            <option value="Di chuyển">🚗 Di chuyển</option>
+                            <option value="Mua sắm">🛍️ Mua sắm</option>
+                            <option value="Giải trí">🎮 Giải trí</option>
+                            <option value="Sức khỏe">💊 Sức khỏe</option>
+                            <option value="Khác">📦 Khác</option>
+                        </select>
+                    </div>
+                    <div>
+                        <div class="field-label">Thời gian</div>
+                        <input class="exp-input" id="newTime" type="datetime-local" style="color-scheme:dark;" />
+                    </div>
+                    <button class="btn-add-exp" onclick="addExpense()">＋ Thêm khoản chi</button>
+                </div>
+
+                <!-- Expenses table -->
+                <div class="exp-table-wrap">
+                    <table class="exp-table">
+                        <thead>
+                            <tr>
+                                <th>Tên khoản chi</th>
+                                <th>Số tiền</th>
+                                <th>Phân loại</th>
+                                <th>Thời gian</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody id="expTableBody"></tbody>
+                    </table>
+                    <div class="empty-exp" id="expEmpty">Chưa có khoản chi nào. Hãy thêm ngay!</div>
+                </div>
+
+            </div>
+        </div>
+    </div>
+
+    <!-- ══════════════════════════════════════
+     MAIN PAGE
+══════════════════════════════════════ -->
+    <div id="picker-page">
+
+        <!-- NAVBAR -->
+        <nav class="mp-navbar">
+            <a href="welcome.html" class="mp-logo">
+                <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="nlg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#00dcc0" />
+                            <stop offset="100%" stop-color="#7b2fff" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="16" cy="16" r="14" stroke="url(#nlg)" stroke-width="2" fill="none" />
+                    <line x1="16" y1="16" x2="16" y2="8" stroke="url(#nlg)" stroke-width="2.2" stroke-linecap="round" />
+                    <line x1="16" y1="16" x2="22" y2="19" stroke="url(#nlg)" stroke-width="1.8"
+                        stroke-linecap="round" />
+                    <circle cx="16" cy="16" r="2" fill="url(#nlg)" />
+                </svg>
+                <span class="mp-logo-text">CaltDHy</span>
+            </a>
+
+            <div class="nav-tabs">
+                <!-- Expense tab – opens modal -->
+                <button class="nav-tab" onclick="openExpModal()" title="Quản lý chi tiêu">
+                    <span>💰</span><span class="label">Quản lý chi tiêu</span>
+                </button>
+                <!-- Calendar tab – current page -->
+                <a href="#" class="nav-tab active" title="Lịch trình">
+                    <span>📅</span><span class="label">Lịch trình</span>
+                </a>
+            </div>
+
+            <div class="nav-right">
+                <button class="nav-logout" onclick="handleLogout()">Đăng xuất</button>
+            </div>
+        </nav>
+
+        <!-- HEADER -->
+        <div class="mp-header">
+            <h2>Chọn tháng của bạn</h2>
+            <p>Hover to stopped the weels · Click month to open calendar</p>
+        </div>
+
+        <!-- SCENE -->
+        <div class="scene">
+            <div class="orbit-system" id="orbitSystem">
+                <div class="orbit-track"></div>
+
+                <!-- Year hub -->
+                <div class="year-hub">
+                    <!-- Edge arrows – absolutely at hub left/right, opacity 0.45 default -->
+                    <button class="year-btn btn-prev" onclick="changeYear(-1)" title="Năm trước">&#8592;</button>
+                    <button class="year-btn btn-next" onclick="changeYear(1)" title="Năm sau">&#8594;</button>
+                    <!-- Today date label -->
+                    <div class="year-today" id="todayDate">Hôm nay: --/--/----</div>
+                    <div class="year-number" id="yearDisplay">2026</div>
+                </div>
+
+
+                <!-- Month bubbles injected by JS -->
+            </div>
+        </div>
+
+        <p class="mp-hint">Vòng quay dừng khi di chuột &nbsp;·&nbsp; Click để xem lịch chi tiết</p>
+    </div>
+
+    <script>
+        /* ════════════════════════════════════════════
+           CONFIG & STATE
+        ════════════════════════════════════════════ */
+        const MONTH_NUMS = ['01', '02', '03', '04', '05', '06', '07', '08', '09', '10', '11', '12'];
+        const SHORT_MON = ['Th.1', 'Th.2', 'Th.3', 'Th.4', 'Th.5', 'Th.6', 'Th.7', 'Th.8', 'Th.9', 'Th.10', 'Th.11', 'Th.12'];
+
+        const now = new Date();
+        let year = now.getFullYear();
+        const curM = now.getMonth(); // 0-indexed
+
+        /* Orbit parameters */
+        const ORBIT_R = 210;   // px – radius of orbit
+        const BUBBLE_R = 36;    // px – half bubble size (72/2)
+        const DEG_PER_MS = 360 / (22 * 1000); // full revolution in 22 seconds
+
+        let orbitAngle = 0;   // current rotation degrees
+        let lastTs = null;
+        let paused = false;
+        let rafId = null;
+        let bubbles = [];  // DOM nodes
+
+        /* ════════════════════════════════════════════
+           BUILD BUBBLES (appended to .orbit-system, NOT .orbit-ring)
+           Positioned via JS style.transform = translate(x, y)
+           NO element rotation → text ALWAYS upright
+        ════════════════════════════════════════════ */
+        function buildBubbles() {
+            const system = document.getElementById('orbitSystem');
+            // Remove old bubbles
+            system.querySelectorAll('.month-bubble').forEach(b => b.remove());
+            bubbles = [];
+
+            const cx = system.offsetWidth / 2;  // centre of system
+            const cy = system.offsetHeight / 2;
+
+            for (let i = 0; i < 12; i++) {
+                const b = document.createElement('div');
+                b.className = 'month-bubble' + (i === curM ? ' current-month' : '');
+                b.innerHTML = `<span class="mon-num">${MONTH_NUMS[i]}</span><span class="mon-name">${SHORT_MON[i]}</span>`;
+                b.dataset.idx = i;
+
+                // Hover: pause immediately + highlight
+                b.addEventListener('mouseenter', () => {
+                    paused = true;
+                    system.classList.add('is-hovered');
+                });
+                system.addEventListener('mouseleave', () => {
+                    paused = false;
+                    system.classList.remove('is-hovered');
+                    lastTs = null; // reset timestamp so speed stays constant
+                });
+
+                b.addEventListener('click', () => goToCalendar(i + 1));
+
+                system.appendChild(b);
+                bubbles.push({ el: b, initAngle: (i / 12) * 360 }); // evenly spaced start angles
+            }
+
+            positionBubbles(cx, cy);
+        }
+
+        function positionBubbles(cx, cy) {
+            bubbles.forEach(({ el, initAngle }) => {
+                const θ = (initAngle + orbitAngle) * (Math.PI / 180);
+                const x = cx + ORBIT_R * Math.cos(θ - Math.PI / 2); // start at top
+                const y = cy + ORBIT_R * Math.sin(θ - Math.PI / 2);
+                // Place bubble so its center is at (x, y) via absolute positioning
+                el.style.left = (x - BUBBLE_R) + 'px';
+                el.style.top = (y - BUBBLE_R) + 'px';
+            });
+        }
+
+        /* ════════════════════════════════════════════
+           ANIMATION LOOP
+        ════════════════════════════════════════════ */
+        function tick(ts) {
+            if (!paused) {
+                if (lastTs !== null) {
+                    const dt = ts - lastTs;
+                    orbitAngle = (orbitAngle + DEG_PER_MS * dt) % 360;
+                }
+                lastTs = ts;
+            } else {
+                lastTs = null;
+            }
+
+            const system = document.getElementById('orbitSystem');
+            const cx = system.offsetWidth / 2;
+            const cy = system.offsetHeight / 2;
+            positionBubbles(cx, cy);
+
+            rafId = requestAnimationFrame(tick);
+        }
+
+        /* ════════════════════════════════════════════
+           YEAR NAVIGATION
+        ════════════════════════════════════════════ */
+        function changeYear(delta) {
+            year += delta;
+            document.getElementById('yearDisplay').textContent = year;
+        }
+
+        /* Fill today's date in the hub */
+        (function fillTodayDate() {
+            const now = new Date();
+            const dd = String(now.getDate()).padStart(2, '0');
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const yyyy = now.getFullYear();
+            const el = document.getElementById('todayDate');
+            if (el) el.textContent = `Hôm nay là ngày ${dd}/${mm}/${yyyy}`;
+        })();
+
+
+        /* ════════════════════════════════════════════
+           NAVIGATE TO CALENDAR
+        ════════════════════════════════════════════ */
+        function goToCalendar(month) {
+            cancelAnimationFrame(rafId);
+            const page = document.getElementById('picker-page');
+            page.classList.add('fade-out');
+            setTimeout(() => { window.location.href = `dashboard.html?y=${year}&m=${month}`; }, 580);
+        }
+
+        /* ════════════════════════════════════════════
+           AUTH GUARD + LOGOUT
+        ════════════════════════════════════════════ */
+        (function () {
+            if (!localStorage.getItem('pcn_token')) window.location.href = 'index.html';
+        })();
+
+        function handleLogout() {
+            localStorage.removeItem('pcn_token');
+            localStorage.removeItem('pcn_user');
+            window.location.href = 'index.html';
+        }
+
+        /* ════════════════════════════════════════════
+           EXPENSE TRACKER  (localStorage)
+        ════════════════════════════════════════════ */
+        function expKey() { return 'caltdhy_expenses'; }
+        function budgetKey() { return 'caltdhy_budget'; }
+
+        function getExpenses() { return JSON.parse(localStorage.getItem(expKey()) || '[]'); }
+        function saveExpenses(arr) { localStorage.setItem(expKey(), JSON.stringify(arr)); }
+        function getBudget() { return parseFloat(localStorage.getItem(budgetKey()) || '0'); }
+        function saveBudget() {
+            const v = parseFloat(document.getElementById('budgetInput').value) || 0;
+            localStorage.setItem(budgetKey(), v);
+            renderExpenses();
+        }
+
+        function openExpModal() {
+            document.getElementById('budgetInput').value = getBudget() || '';
+            // Prefill datetime to now
+            const dtInput = document.getElementById('newTime');
+            const now2 = new Date();
+            now2.setMinutes(now2.getMinutes() - now2.getTimezoneOffset());
+            dtInput.value = now2.toISOString().slice(0, 16);
+            renderExpenses();
+            document.getElementById('expOverlay').classList.remove('hidden');
+        }
+        function closeExpModal() { document.getElementById('expOverlay').classList.add('hidden'); }
+
+        // Close on overlay click
+        document.getElementById('expOverlay').addEventListener('click', function (e) {
+            if (e.target === this) closeExpModal();
+        });
+
+        function addExpense() {
+            const name = document.getElementById('newName').value.trim();
+            const amt = parseFloat(document.getElementById('newAmt').value);
+            const cat = document.getElementById('newCat').value;
+            const time = document.getElementById('newTime').value;
+
+            if (!name || isNaN(amt) || amt <= 0) {
+                alert('Vui lòng nhập tên khoản chi và số tiền hợp lệ.');
+                return;
+            }
+
+            const expenses = getExpenses();
+            expenses.unshift({ id: Date.now(), name, amt, cat, time });
+            saveExpenses(expenses);
+
+            document.getElementById('newName').value = '';
+            document.getElementById('newAmt').value = '';
+            renderExpenses();
+        }
+
+        function deleteExpense(id) {
+            saveExpenses(getExpenses().filter(e => e.id !== id));
+            renderExpenses();
+        }
+
+        function renderExpenses() {
+            const expenses = getExpenses();
+            const budget = getBudget();
+            const total = expenses.reduce((s, e) => s + e.amt, 0);
+            const pct = budget > 0 ? Math.min((total / budget) * 100, 100) : 0;
+
+            document.getElementById('budgetVals').textContent =
+                `${fmtMoney(total)} / ${fmtMoney(budget)} ₫`;
+            document.getElementById('progressFill').style.width = pct + '%';
+
+            const tbody = document.getElementById('expTableBody');
+            const empty = document.getElementById('expEmpty');
+
+            if (expenses.length === 0) {
+                tbody.innerHTML = '';
+                empty.style.display = 'block';
+                return;
+            }
+            empty.style.display = 'none';
+            tbody.innerHTML = expenses.map(e => `
+        <tr>
+            <td>${escHtml(e.name)}</td>
+            <td class="td-amount">${fmtMoney(e.amt)} ₫</td>
+            <td><span class="cat-badge">${escHtml(e.cat)}</span></td>
+            <td>${fmtDateTime(e.time)}</td>
+            <td><button class="btn-del" onclick="deleteExpense(${e.id})" title="Xóa">🗑</button></td>
+        </tr>
+    `).join('');
+        }
+
+        function fmtMoney(n) { return Number(n).toLocaleString('vi-VN'); }
+        function fmtDateTime(s) {
+            if (!s) return '—';
+            const d = new Date(s);
+            return isNaN(d) ? s : d.toLocaleString('vi-VN', { dateStyle: 'short', timeStyle: 'short' });
+        }
+        function escHtml(s) { return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
+
+        /* ════════════════════════════════════════════
+           INIT
+        ════════════════════════════════════════════ */
+        window.addEventListener('load', () => {
+            document.getElementById('yearDisplay').textContent = year;
+            buildBubbles();
+            rafId = requestAnimationFrame(tick);
+
+            // Entrance fade-in
+            const page = document.getElementById('picker-page');
+            page.style.opacity = '0';
+            page.style.transform = 'scale(0.97)';
+            page.style.transition = 'opacity .5s ease, transform .5s ease';
+            requestAnimationFrame(() => requestAnimationFrame(() => {
+                page.style.opacity = '1';
+                page.style.transform = 'scale(1)';
+            }));
+        });
+
+        window.addEventListener('resize', () => { buildBubbles(); });
+    </script>
+</body>
+
+</html>

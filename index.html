@@ -2,138 +2,235 @@
 <html lang="vi">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Profile</title>
-    <link rel="stylesheet" href="styde.css">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CaltDHy – Quản lý lịch trình cá nhân</title>
+    <meta name="description" content="CaltDHy – Quản lý lịch trình cá nhân thông minh." />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="style.css" />
 </head>
 
-<body>
-    <div class="cottrai">
-        <nav class="menuu">
-            <a href="#gioithieu" class="itemm">Giới thiệu</a>
-            <a href="#kynang" class="itemm">Kỹ năng</a>
-            <a href="#duan" class="itemm">Dự án</a>
-            <a href="#thanhtich" class="itemm">Thành tích</a>
-            <a href="#lienhe" class="itemm">Liên hệ</a>
-        </nav>
+<body class="auth-body">
+
+    <!-- Shooting stars canvas -->
+    <canvas id="shootingStarsCanvas"></canvas>
+
+    <!-- Color mode toggle (bottom-left) -->
+    <button class="color-mode-toggle" id="colorModeToggle" onclick="toggleColorMode()" title="Chuyển chế độ màu">
+        <span class="toggle-icon" id="modeIcon">🌙</span>
+        <div class="toggle-track">
+            <div class="toggle-thumb" id="toggleThumb"></div>
+        </div>
+        <span id="modeLabel">Chế độ: Tối</span>
+    </button>
+
+    <!-- ====== AUTH PAGE ====== -->
+    <div class="auth-page" id="authPage">
+
+        <!-- Left: Branding -->
+        <div class="auth-brand">
+            <div class="brand-content">
+                <!-- CaltDHy SVG clock logo -->
+                <svg style="width:52px;height:52px;margin-bottom:12px;" viewBox="0 0 32 32" fill="none"
+                    xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="alg1" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                            <stop offset="0%" stop-color="#00dcc0" />
+                            <stop offset="100%" stop-color="#7b2fff" />
+                        </linearGradient>
+                    </defs>
+                    <circle cx="16" cy="16" r="14" stroke="url(#alg1)" stroke-width="2" fill="none" />
+                    <line x1="16" y1="16" x2="16" y2="8" stroke="url(#alg1)" stroke-width="2.2"
+                        stroke-linecap="round" />
+                    <line x1="16" y1="16" x2="22" y2="19" stroke="url(#alg1)" stroke-width="1.8"
+                        stroke-linecap="round" />
+                    <circle cx="16" cy="16" r="2" fill="url(#alg1)" />
+                </svg>
+                <h1 class="brand-name"
+                    style="background:linear-gradient(135deg,#00dcc0,#7b2fff,#e054b0);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;font-size:42px;">
+                    CaltDHy</h1>
+                <p class="brand-tagline">Quản lý dòng tiền và thời gian một cách thông minh và dễ dàng.</p>
+            </div>
+        </div>
+
+        <!-- Right: Form Panel -->
+        <div class="auth-panel">
+            <div class="auth-card">
+
+                <!-- Tab buttons -->
+                <div class="auth-tabs">
+                    <button class="tab-btn active" id="loginTab" onclick="switchTab('login')">Đăng nhập</button>
+                    <button class="tab-btn" id="registerTab" onclick="switchTab('register')">Đăng ký</button>
+                </div>
+
+                <!-- ĐĂNG NHẬP -->
+                <div class="auth-form" id="loginForm">
+                    <div class="form-group">
+                        <input type="email" id="loginEmail" class="form-input" placeholder="Email"
+                            autocomplete="email" />
+                    </div>
+                    <div class="form-group">
+                        <div class="input-with-toggle">
+                            <input type="password" id="loginPassword" class="form-input" placeholder="Mật khẩu"
+                                autocomplete="current-password" />
+                            <button type="button" class="toggle-pass"
+                                onclick="togglePassword('loginPassword', this)">👁</button>
+                        </div>
+                    </div>
+                    <div id="loginError" class="form-message error" style="display:none;"></div>
+                    <button class="btn-primary btn-full" id="loginBtn" onclick="handleLogin()">Đăng nhập</button>
+                    <div class="auth-divider"><span>hoặc</span></div>
+                    <button class="btn-link" onclick="switchTab('forgot')">Quên mật khẩu?</button>
+                </div>
+
+                <!-- ĐĂNG KÝ -->
+                <div class="auth-form" id="registerForm" style="display:none;">
+                    <div class="form-group">
+                        <input type="text" id="regName" class="form-input" placeholder="Họ và tên"
+                            autocomplete="name" />
+                    </div>
+                    <div class="form-group">
+                        <input type="email" id="regEmail" class="form-input" placeholder="Email" autocomplete="email" />
+                    </div>
+                    <div class="form-group">
+                        <div class="input-with-toggle">
+                            <input type="password" id="regPassword" class="form-input"
+                                placeholder="Mật khẩu (ít nhất 6 ký tự)" autocomplete="new-password" />
+                            <button type="button" class="toggle-pass"
+                                onclick="togglePassword('regPassword', this)">👁</button>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <input type="password" id="regConfirm" class="form-input" placeholder="Xác nhận mật khẩu"
+                            autocomplete="new-password" />
+                    </div>
+                    <div id="registerError" class="form-message error" style="display:none;"></div>
+                    <div id="registerSuccess" class="form-message success" style="display:none;"></div>
+                    <button class="btn-primary btn-full" id="registerBtn" onclick="handleRegister()">Tạo tài
+                        khoản</button>
+                </div>
+
+                <!-- QUÊN MẬT KHẨU -->
+                <div class="auth-form" id="forgotForm" style="display:none;">
+                    <p class="forgot-desc">Nhập email đã đăng ký, chúng tôi sẽ gửi hướng dẫn đặt lại mật khẩu.</p>
+                    <div class="form-group">
+                        <input type="email" id="forgotEmail" class="form-input" placeholder="Email đã đăng ký" />
+                    </div>
+                    <div id="forgotError" class="form-message error" style="display:none;"></div>
+                    <div id="forgotSuccess" class="form-message success" style="display:none;"></div>
+                    <button class="btn-primary btn-full" id="forgotBtn" onclick="handleForgotPassword()">Gửi email đặt
+                        lại</button>
+                    <button class="btn-link" onclick="switchTab('login')">← Quay lại đăng nhập</button>
+                </div>
+
+            </div>
+
+            <p class="auth-footer">
+                © 2026 <strong>CaltDHy</strong> · Quản lý lịch trình cá nhân
+            </p>
+        </div>
     </div>
-    <div class="cotphai"></div>
-    <section class="hero">
-        <div class="container" id="mainContainer">
-            <h1>Trần Gia Huy</h1><br><br>
-            <p>Let's start!</p><br>
-            <p class="an" id="clickText">Click Here or Scroll Down</p>
-            <div class="menu-boxes" id="menuBoxes">
-                <a href="#gioithieu" class="box">Giới thiệu</a>
-                <a href="#kynang" class="box">Kỹ năng</a>
-                <a href="#duan" class="box">Dự án</a>
-                <a href="#thanhtich" class="box">Thành tích</a>
-                <a href="#lienhe" class="box">Liên hệ</a>
-            </div>
-        </div>
 
-        <div class="saobang"></div>
-        <div class="saobang"></div>
-        <div class="saobang"></div>
-        <div class="saobang"></div>
-        <div class="saobang"></div>
-        <div class="saobang"></div>
-        <div class="saobang"></div>
-        <div class="saobang"></div>
-        <div class="saobang"></div>
-        <div class="saobang"></div>
-    </section>
+    <script src="auth.js"></script>
 
+    <script>
+        /* ── SHOOTING STARS ── */
+        (function () {
+            const canvas = document.getElementById('shootingStarsCanvas');
+            const ctx = canvas.getContext('2d');
+            let stars = [];
 
-    <section class="stc" id="gioithieu">
-        <div class="stc-content">
-            <h2>Giới thiệu</h2>
+            function resize() {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+            }
+            window.addEventListener('resize', resize);
+            resize();
 
-            <div class="info-bar">
-                <p>Xin chào! Tôi là Trần Gia Huy.</p>
-            </div>
+            function randomBetween(a, b) { return a + Math.random() * (b - a); }
 
-            <div class="info-bar">
-                <p>Sinh viên trường Đại học Công nghệ Thông Tin.</p>
-            </div>
+            function spawnStar() {
+                const startX = randomBetween(0, canvas.width);
+                const startY = randomBetween(0, canvas.height * 0.5); // top half
+                const length = randomBetween(80, 200);
+                const angle = randomBetween(30, 50) * Math.PI / 180; // diagonal down-right
+                const speed = randomBetween(280, 520); // px/s
+                const life = length / speed; // seconds until gone
+                return {
+                    x: startX, y: startY, length, angle, speed, life, age: 0,
+                    tailX: Math.cos(angle), tailY: Math.sin(angle)
+                };
+            }
 
-            <div class="info-bar">
-                <p>Khoa: Hệ thống thông tin.</p>
-            </div>
-        </div>
-    </section>
-    <section class="stc" id="kynang">
-        <div class="stc-content">
-            <h2>Kỹ năng</h2>
+            let lastTime = null;
 
-            <div class="info-bar">
-                <p>Thành thạo nhiều ngôn ngữ giao tiếp ( 2 ngôn ngữ )</p>
-            </div>
+            function loop(ts) {
+                if (!lastTime) lastTime = ts;
+                const dt = Math.min((ts - lastTime) / 1000, 0.05);
+                lastTime = ts;
 
-            <div class="info-bar">
-                <p>Có thể sử dụng nhiều ngôn ngữ lập trình</p>
-            </div>
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-            <div class="info-bar">
-                <p>Sleeping 9.0 Copying 9.0</p>
-            </div>
-        </div>
-    </section>
+                // Spawn new star randomly
+                if (Math.random() < dt * 1.8) stars.push(spawnStar()); // avg ~1.8 per second
 
-    <section class="stc" id="duan">
-        <div class="stc-content">
-            <h2>Dự án</h2>
+                // Update & draw
+                stars = stars.filter(s => s.age < s.life);
+                stars.forEach(s => {
+                    s.age += dt;
+                    const progress = s.age / s.life;          // 0 → 1
+                    const alpha = Math.sin(progress * Math.PI); // fade in + out
+                    const traveled = s.speed * s.age;
+                    const headX = s.x + s.tailX * traveled;
+                    const headY = s.y + s.tailY * traveled;
+                    const tailX = headX - s.tailX * s.length * (1 - progress * 0.4);
+                    const tailY = headY - s.tailY * s.length * (1 - progress * 0.4);
 
-            <div class="info-bar">
-                <p>Project 1 - Profile giới thiệu cá nhân</p>
-            </div>
+                    const grad = ctx.createLinearGradient(tailX, tailY, headX, headY);
+                    grad.addColorStop(0, `rgba(255,255,255,0)`);
+                    grad.addColorStop(0.6, `rgba(200,240,255,${alpha * 0.55})`);
+                    grad.addColorStop(1, `rgba(255,255,255,${alpha * 0.9})`);
 
-            <div class="info-bar">
-                <p>Project 2 - Coming soon</p>
-            </div>
+                    ctx.beginPath();
+                    ctx.moveTo(tailX, tailY);
+                    ctx.lineTo(headX, headY);
+                    ctx.strokeStyle = grad;
+                    ctx.lineWidth = randomBetween(0.5, 1.5);
+                    ctx.stroke();
 
-            <div class="info-bar">
-                <p>Project 3 - Comming soon</p>
-            </div>
-        </div>
-    </section>
-    <section class="stc" id="thanhtich">
-        <div class="stc-content">
-            <h2>Thành tích</h2>
+                    // Head glow dot
+                    ctx.beginPath();
+                    ctx.arc(headX, headY, 1.5, 0, Math.PI * 2);
+                    ctx.fillStyle = `rgba(255,255,255,${alpha * 0.9})`;
+                    ctx.fill();
+                });
 
-            <div class="info-bar">
-                <p>GPA: 9.0 </p>
-            </div>
+                requestAnimationFrame(loop);
+            }
+            requestAnimationFrame(loop);
+        })();
 
-            <div class="info-bar">
-                <p>Học sinh giỏi 12 năm liền</p>
-            </div>
+        /* ── COLOR MODE TOGGLE ── */
+        function toggleColorMode() {
+            const body = document.body;
+            const isLight = body.classList.toggle('light-mode');
+            document.getElementById('modeIcon').textContent = isLight ? '☀️' : '🌙';
+            document.getElementById('modeLabel').textContent = isLight ? 'Chế độ: Sáng' : 'Chế độ: Tối';
+            localStorage.setItem('caltdhy_theme', isLight ? 'light' : 'dark');
+        }
 
-            <div class="info-bar">
-                <p>Ect...</p>
-            </div>
-        </div>
-    </section>
-    <section class="stc" id="lienhe">
-        <div class="stc-content">
-            <h2>Liên hệ</h2>
-
-            <div class="info-bar">
-                <p>📧 Email: giahuyz3sta@gmail.com</p>
-            </div>
-
-            <div class="info-bar">
-                <p>📱 Phone: 0836 857 836</p>
-            </div>
-
-            <div class="info-bar">
-                <p>🔗 GitHub: github.com/giahuyz3sta-oss</p>
-            </div>
-        </div>
-    </section>
-
-    <script src="index.js"></script>
+        // Restore saved theme on load
+        (function () {
+            const saved = localStorage.getItem('caltdhy_theme');
+            if (saved === 'light') {
+                document.body.classList.add('light-mode');
+                document.getElementById('modeIcon').textContent = '☀️';
+                document.getElementById('modeLabel').textContent = 'Chế độ: Sáng';
+            }
+        })();
+    </script>
 </body>
 
 </html>
