@@ -482,6 +482,8 @@
             }
         }
     </style>
+    <link rel="manifest" href="manifest.json">
+
 </head>
 
 <body>
@@ -738,6 +740,12 @@
             }
         })();
     </script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('sw.js');
+        }
+    </script>
+
 
 </body>
 
