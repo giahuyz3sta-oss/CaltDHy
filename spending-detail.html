@@ -1040,13 +1040,58 @@
            SPENDING DATA (from localStorage or zeros)
            Data shape: caltdhy_spending_YYYY_MM = { total: number }
         ============================================================ */
+        /* ============================================================
+           SPENDING DATA (ĐÃ NÂNG CẤP LÊN API MONGODB BỞI AI)
+        ============================================================ */
+        let yearlyTotals = new Array(12).fill(0);
+
         function getMonthSpending(year, monthIdx) {
-            const key = KEY_SPENDING + year + '_' + String(monthIdx + 1).padStart(2, '0');
-            try {
-                const data = JSON.parse(localStorage.getItem(key));
-                return data && typeof data.total === 'number' ? data.total : 0;
-            } catch { return 0; }
+            // Lấy dữ liệu từ mảng toàn cục đã được API gọi về
+            return yearlyTotals[monthIdx];
         }
+
+        async function loadYearlyData() {
+            const token = localStorage.getItem('pcn_token');
+            if (!token) return;
+
+            const now = new Date();
+            const currentYear = now.getFullYear();
+
+            try {
+                // Phân thân gọi API 12 tháng cùng lúc cho lẹ
+                const promises = [];
+                for (let m = 1; m <= 12; m++) {
+                    promises.push(
+                        fetch(`https://caltdhy.onrender.com/api/spending?year=${currentYear}&month=${m}`, {
+                            headers: { 'Authorization': `Bearer ${token}` }
+                        }).then(res => res.json())
+                    );
+                }
+
+                // Chờ cả 12 tháng trả kết quả về
+                const results = await Promise.all(promises);
+
+                // Gom tiền từng tháng lại
+                results.forEach((data, index) => {
+                    let monthTotal = 0;
+                    if (data.success && data.data) {
+                        data.data.forEach(record => {
+                            monthTotal += (record.food || 0) + (record.gas || 0) + (record.coffee || 0) + (record.misc || 0);
+                        });
+                    }
+                    yearlyTotals[index] = monthTotal;
+                });
+
+                // Cập nhật lại giao diện 12 ô vuông
+                renderMonthGrid();
+
+            } catch (error) {
+                console.error("Lỗi khi tải dữ liệu 12 tháng:", error);
+            }
+        }
+
+        // Tự động kéo dữ liệu khi vừa vào trang
+        document.addEventListener('DOMContentLoaded', loadYearlyData);
 
         /* ============================================================
            12-MONTH GRID RENDER
