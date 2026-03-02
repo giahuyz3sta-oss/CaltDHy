@@ -37,6 +37,9 @@ router.get('/', async (req, res) => {
 // Upsert dữ liệu chi tiêu 1 ngày (date = "YYYY-MM-DD")
 // Body: { food, gas, coffee, misc }
 // =============================================
+// =============================================
+// PUT /api/spending/:date (PHIÊN BẢN ĐÃ FIX LỖI DÀI HẠN)
+// =============================================
 router.put('/:date', async (req, res) => {
     try {
         const { date } = req.params;
@@ -47,11 +50,15 @@ router.put('/:date', async (req, res) => {
         }
 
         const [year, month, day] = date.split('-').map(Number);
-        const { food = 0, gas = 0, coffee = 0, misc = 0 } = req.body;
 
-        const total = (food || 0) + (gas || 0) + (coffee || 0) + (misc || 0);
+        // NHẬN THÊM longTerm TỪ FRONTEND GỬI LÊN
+        const { food = 0, gas = 0, coffee = 0, misc = 0, longTerm = {} } = req.body;
 
-        // findOneAndUpdate với upsert = true: tạo mới nếu chưa có, cập nhật nếu đã có
+        // Tính tổng bao gồm cả các khoản dài hạn
+        const ltTotal = Object.values(longTerm).reduce((a, b) => a + (Number(b) || 0), 0);
+        const total = (food || 0) + (gas || 0) + (coffee || 0) + (misc || 0) + ltTotal;
+
+        // Cập nhật vào Database
         const record = await Spending.findOneAndUpdate(
             { userId: req.user._id, date },
             {
@@ -60,6 +67,7 @@ router.put('/:date', async (req, res) => {
                 gas: gas || 0,
                 coffee: coffee || 0,
                 misc: misc || 0,
+                longTerm: longTerm, // LƯU KÉT SẮT MỚI
                 total
             },
             { upsert: true, new: true, runValidators: true }

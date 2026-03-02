@@ -1,41 +1,33 @@
 const mongoose = require('mongoose');
 
 const spendingSchema = new mongoose.Schema({
-    userId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User',
-        required: true
-    },
-    // Ngày dạng "YYYY-MM-DD" – dùng để query và upsert
-    date: {
-        type: String,
-        required: true,
-        match: [/^\d{4}-\d{2}-\d{2}$/, 'Định dạng ngày không hợp lệ (YYYY-MM-DD)']
-    },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+    date: { type: String, required: true, match: [/^\d{4}-\d{2}-\d{2}$/, 'YYYY-MM-DD'] },
     year: { type: Number, required: true },
-    month: { type: Number, required: true },  // 1-12
+    month: { type: Number, required: true },
     day: { type: Number, required: true },
 
-    // 4 danh mục chi tiêu (đơn vị: VND)
-    food: { type: Number, default: 0, min: 0 },   // Ăn uống
-    gas: { type: Number, default: 0, min: 0 },   // Xăng xe
-    coffee: { type: Number, default: 0, min: 0 },   // Cà phê
-    misc: { type: Number, default: 0, min: 0 },   // Linh tinh
+    // 4 danh mục mặc định
+    food: { type: Number, default: 0, min: 0 },
+    gas: { type: Number, default: 0, min: 0 },
+    coffee: { type: Number, default: 0, min: 0 },
+    misc: { type: Number, default: 0, min: 0 },
 
-    // Tổng ngày – tự tính trước khi save
+    // --- MỤC DÀI HẠN MỚI THÊM VÀO ---
+    longTerm: { type: Map, of: Number, default: {} },
+
     total: { type: Number, default: 0 }
-}, {
-    timestamps: true
-});
+}, { timestamps: true });
 
-// Tính total trước khi save
+// Tính tổng bao gồm cả mục dài hạn trước khi save
 spendingSchema.pre('save', function (next) {
-    this.total = (this.food || 0) + (this.gas || 0) + (this.coffee || 0) + (this.misc || 0);
+    let ltTotal = 0;
+    if (this.longTerm) {
+        for (let val of this.longTerm.values()) { ltTotal += val || 0; }
+    }
+    this.total = (this.food || 0) + (this.gas || 0) + (this.coffee || 0) + (this.misc || 0) + ltTotal;
     next();
 });
 
-// Index unique theo user + date để upsert nhanh
 spendingSchema.index({ userId: 1, date: 1 }, { unique: true });
-spendingSchema.index({ userId: 1, year: 1, month: 1 });
-
 module.exports = mongoose.model('Spending', spendingSchema);
