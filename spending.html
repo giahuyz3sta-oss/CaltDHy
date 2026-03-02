@@ -2196,8 +2196,6 @@
             oldCalcConfirm(); // Chạy logic cũ để cập nhật UI
             if (calcMode === 'long') saveLongTermToServer(); // Nếu là mục dài hạn thì đẩy lên DB luôn
         };
-
-        document.addEventListener('DOMContentLoaded', loadOverviewData);
         // Tự động chạy hàm lấy dữ liệu khi mở trang
         document.addEventListener('DOMContentLoaded', loadOverviewData);
     </script>
