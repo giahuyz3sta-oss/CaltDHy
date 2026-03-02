@@ -431,6 +431,15 @@
     </main>
 
     <script>
+        /* ============================================================
+           AUTH GUARD
+        ============================================================ */
+        (function () {
+            if (!localStorage.getItem('pcn_token')) {
+                window.location.href = 'index.html';
+            }
+        })();
+
         /* ── URL PARAMS ── */
         const params = new URLSearchParams(window.location.search);
         const month = parseInt(params.get('month')) || new Date().getMonth() + 1;
@@ -569,7 +578,7 @@
         function handleLogout() {
             ['caltdhy_token', 'caltdhy_user', 'pcn_token', 'pcn_user'].forEach(k => localStorage.removeItem(k));
             ['caltdhy_token', 'caltdhy_user'].forEach(k => sessionStorage.removeItem(k));
-            window.location.href = 'welcome.html';
+            window.location.href = 'index.html';
         }
 
         render();

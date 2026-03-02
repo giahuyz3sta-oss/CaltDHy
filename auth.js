@@ -1,7 +1,9 @@
 /* =============================================
-   auth.js – DEMO MODE (localStorage, không cần server)
-   projectcanhan.com
+   auth.js – REAL BACKEND MODE
+   Backend: https://caltdhy.onrender.com
    ============================================= */
+
+const API_BASE = 'https://caltdhy.onrender.com';
 
 // ---- Tab Switcher ----
 function switchTab(tab) {
@@ -65,16 +67,8 @@ function setLoading(btnId, loading, text = '') {
     }
 }
 
-// ---- Helper: Lấy danh sách users từ localStorage ----
-function getUsers() {
-    return JSON.parse(localStorage.getItem('pcn_users') || '[]');
-}
-function saveUsers(users) {
-    localStorage.setItem('pcn_users', JSON.stringify(users));
-}
-
-// ---- ĐĂNG KÝ (Demo) ----
-function handleRegister() {
+// ---- ĐĂNG KÝ ----
+async function handleRegister() {
     const name = document.getElementById('regName').value.trim();
     const email = document.getElementById('regEmail').value.trim();
     const password = document.getElementById('regPassword').value;
@@ -95,36 +89,38 @@ function handleRegister() {
         return;
     }
 
-    const users = getUsers();
-    if (users.find(u => u.email === email)) {
-        showMessage('registerError', 'Email này đã được đăng ký. Vui lòng dùng email khác.');
-        return;
-    }
-
     setLoading('registerBtn', true);
 
-    setTimeout(() => {
-        const newUser = {
-            id: 'user_' + Date.now(),
-            name,
-            email,
-            password // Demo: lưu plain text (production phải hash)
-        };
-        users.push(newUser);
-        saveUsers(users);
+    try {
+        const res = await fetch(API_BASE + '/api/auth/register', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ name, email, password })
+        });
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            showMessage('registerError', data.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+            setLoading('registerBtn', false, 'Tạo tài khoản');
+            return;
+        }
+
+        // Lưu token và thông tin user
+        localStorage.setItem('pcn_token', data.token);
+        localStorage.setItem('pcn_user', JSON.stringify(data.user));
 
         showMessage('registerSuccess', '✅ Đăng ký thành công! Đang chuyển đến trang chính...', false);
-        localStorage.setItem('pcn_token', 'demo_token_' + newUser.id);
-        localStorage.setItem('pcn_user', JSON.stringify({ id: newUser.id, name: newUser.name, email: newUser.email }));
-        localStorage.setItem('caltdhy_user', JSON.stringify({ username: newUser.name, id: newUser.id, email: newUser.email }));
-
         setTimeout(() => { window.location.href = 'hub.html'; }, 1000);
+
+    } catch (err) {
+        showMessage('registerError', 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.');
         setLoading('registerBtn', false, 'Tạo tài khoản');
-    }, 600);
+    }
 }
 
-// ---- ĐĂNG NHẬP (Demo) ----
-function handleLogin() {
+// ---- ĐĂNG NHẬP ----
+async function handleLogin() {
     const email = document.getElementById('loginEmail').value.trim();
     const password = document.getElementById('loginPassword').value;
 
@@ -137,25 +133,35 @@ function handleLogin() {
 
     setLoading('loginBtn', true);
 
-    setTimeout(() => {
-        const users = getUsers();
-        const user = users.find(u => u.email === email && u.password === password);
+    try {
+        const res = await fetch(API_BASE + '/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
 
-        if (!user) {
-            showMessage('loginError', 'Email hoặc mật khẩu không đúng.');
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            showMessage('loginError', data.message || 'Email hoặc mật khẩu không đúng.');
             setLoading('loginBtn', false, 'Đăng nhập');
             return;
         }
 
-        localStorage.setItem('pcn_token', 'demo_token_' + user.id);
-        localStorage.setItem('pcn_user', JSON.stringify({ id: user.id, name: user.name, email: user.email }));
-        localStorage.setItem('caltdhy_user', JSON.stringify({ username: user.name, id: user.id, email: user.email }));
+        // Lưu token và thông tin user
+        localStorage.setItem('pcn_token', data.token);
+        localStorage.setItem('pcn_user', JSON.stringify(data.user));
+
         window.location.href = 'hub.html';
-    }, 600);
+
+    } catch (err) {
+        showMessage('loginError', 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.');
+        setLoading('loginBtn', false, 'Đăng nhập');
+    }
 }
 
-// ---- QUÊN MẬT KHẨU (Demo) ----
-function handleForgotPassword() {
+// ---- QUÊN MẬT KHẨU ----
+async function handleForgotPassword() {
     const email = document.getElementById('forgotEmail').value.trim();
 
     clearMessages();
@@ -167,31 +173,35 @@ function handleForgotPassword() {
 
     setLoading('forgotBtn', true);
 
-    setTimeout(() => {
-        const users = getUsers();
-        const user = users.find(u => u.email === email);
+    try {
+        const res = await fetch(API_BASE + '/api/auth/forgot-password', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email })
+        });
 
-        if (user) {
-            // Demo: hiển thị mật khẩu trực tiếp (không gửi email thật)
-            showMessage('forgotSuccess',
-                `📧 [DEMO MODE] Mật khẩu của tài khoản "${user.name}" là: "${user.password}"`, false);
+        const data = await res.json();
+
+        if (data.success) {
+            showMessage('forgotSuccess', data.message || 'Nếu email tồn tại, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.', false);
         } else {
-            showMessage('forgotSuccess',
-                'Nếu email tồn tại, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.', false);
+            showMessage('forgotError', data.message || 'Có lỗi xảy ra. Vui lòng thử lại.');
         }
 
+    } catch (err) {
+        showMessage('forgotError', 'Không thể kết nối đến server. Vui lòng kiểm tra kết nối mạng.');
+    } finally {
         setLoading('forgotBtn', false, 'Gửi email đặt lại');
-    }, 600);
+    }
 }
 
 // ---- Redirect nếu đã đăng nhập (bỏ qua nếu có ?force=true) ----
 (function () {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('force') === 'true') return; // Người dùng chủ động muốn vào trang login
+    if (params.get('force') === 'true') return;
     const token = localStorage.getItem('pcn_token');
     if (token) window.location.href = 'hub.html';
 })();
-
 
 // ---- Enter key ----
 document.addEventListener('keydown', function (e) {
@@ -205,9 +215,8 @@ document.addEventListener('keydown', function (e) {
     else if (forgotForm && forgotForm.style.display !== 'none') handleForgotPassword();
 });
 
-// ---- Auto-switch tab based on ?tab= URL param (e.g. from welcome.html) ----
+// ---- Auto-switch tab based on ?tab= URL param ----
 (function () {
     const params = new URLSearchParams(window.location.search);
     if (params.get('tab') === 'register') switchTab('register');
 })();
-

@@ -460,9 +460,9 @@
         .month-grid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
+            gap: 20px;
             width: 100%;
-            max-width: 640px;
+            max-width: 780px;
         }
 
         .month-card {
@@ -472,7 +472,7 @@
             background: rgba(255, 255, 255, .04);
             backdrop-filter: blur(12px);
             cursor: pointer;
-            padding: 20px 12px 16px;
+            padding: 28px 16px 22px;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -531,14 +531,14 @@
 
         .month-num {
             font-family: 'Syne', sans-serif;
-            font-size: 15px;
+            font-size: 18px;
             font-weight: 800;
             color: rgba(255, 255, 255, .85);
             line-height: 1;
         }
 
         .month-name {
-            font-size: 12px;
+            font-size: 13px;
             font-weight: 600;
             color: rgba(255, 255, 255, .45);
             letter-spacing: 0.5px;
@@ -660,7 +660,7 @@
         <nav class="mp-navbar">
 
             <!-- Logo -->
-            <a href="hub.html" class="mp-logo">
+            <a href="month-picker.html" class="mp-logo">
                 <svg viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <defs>
                         <linearGradient id="nlg" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
@@ -941,6 +941,15 @@
 
     <script>
         /* ============================================================
+           AUTH GUARD – Chuyển về trang đăng nhập nếu chưa có token
+        ============================================================ */
+        (function () {
+            if (!localStorage.getItem('pcn_token')) {
+                window.location.href = 'index.html';
+            }
+        })();
+
+        /* ============================================================
            CONSTANTS
         ============================================================ */
         const MONTH_NAMES = [
@@ -1112,7 +1121,7 @@
             localStorage.removeItem('pcn_user');
             sessionStorage.removeItem('caltdhy_token');
             sessionStorage.removeItem('caltdhy_user');
-            window.location.href = 'welcome.html';
+            window.location.href = 'index.html';
         }
 
         /* ============================================================

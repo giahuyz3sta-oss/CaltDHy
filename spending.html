@@ -1652,6 +1652,15 @@
 
     <script>
         /* ============================================================
+           AUTH GUARD
+        ============================================================ */
+        (function () {
+            if (!localStorage.getItem('pcn_token')) {
+                window.location.href = 'index.html';
+            }
+        })();
+
+        /* ============================================================
            CLOCK
         ============================================================ */
         const WEEKDAYS_VI = ['Chủ Nhật', 'Thứ Hai', 'Thứ Ba', 'Thứ Tư', 'Thứ Năm', 'Thứ Sáu', 'Thứ Bảy'];
@@ -2076,7 +2085,7 @@
         function handleLogout() {
             ['caltdhy_token', 'caltdhy_user', 'pcn_token', 'pcn_user'].forEach(k => localStorage.removeItem(k));
             ['caltdhy_token', 'caltdhy_user'].forEach(k => sessionStorage.removeItem(k));
-            window.location.href = 'welcome.html';
+            window.location.href = 'index.html';
         }
 
         /* ============================================================

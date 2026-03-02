@@ -248,6 +248,43 @@
     <div class="toast" id="toast"></div>
 
 
+    <script>
+        /* ============================================================
+           AUTH GUARD
+        ============================================================ */
+        (function () {
+            if (!localStorage.getItem('pcn_token')) {
+                window.location.href = 'index.html';
+            }
+        })();
+
+        /* ============================================================
+           LOGOUT
+        ============================================================ */
+        function handleLogout() {
+            ['caltdhy_token', 'caltdhy_user', 'pcn_token', 'pcn_user'].forEach(k => localStorage.removeItem(k));
+            ['caltdhy_token', 'caltdhy_user'].forEach(k => sessionStorage.removeItem(k));
+            window.location.href = 'index.html';
+        }
+
+        /* ============================================================
+           SHOW USERNAME
+        ============================================================ */
+        (function () {
+            try {
+                const raw = localStorage.getItem('pcn_user') || localStorage.getItem('caltdhy_user');
+                const user = raw ? JSON.parse(raw) : null;
+                if (user) {
+                    const name = user.name || user.username || '';
+                    const el = document.getElementById('userName');
+                    if (el && name) el.textContent = name;
+                    const av = document.getElementById('userAvatar');
+                    if (av && name) av.textContent = name.charAt(0).toUpperCase();
+                }
+            } catch (e) { /* ignore */ }
+        })();
+    </script>
+
     <script src="calendar.js"></script>
     <script>
         if ('serviceWorker' in navigator) {

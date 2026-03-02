@@ -23,6 +23,7 @@ app.use(express.static(path.join(__dirname, '..')));
 // API Routes
 app.use('/api/auth', require('./routes/auth'));
 app.use('/api/events', require('./routes/events'));
+app.use('/api/spending', require('./routes/spending'));
 
 // Route fallback cho SPA
 app.get('/dashboard', (req, res) => {

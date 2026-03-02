@@ -569,6 +569,15 @@
 
     <script>
         /* ============================================================
+           AUTH GUARD
+        ============================================================ */
+        (function () {
+            if (!localStorage.getItem('pcn_token')) {
+                window.location.href = 'index.html';
+            }
+        })();
+
+        /* ============================================================
            NAVIGATION WITH FADE-OUT
         ============================================================ */
         function navigateTo(url) {
@@ -595,13 +604,13 @@
            LOGOUT
         ============================================================ */
         function handleLogout() {
-            // Xóa toàn bộ thông tin đăng nhập
+            localStorage.removeItem('pcn_token');
+            localStorage.removeItem('pcn_user');
             localStorage.removeItem('caltdhy_token');
             localStorage.removeItem('caltdhy_user');
             sessionStorage.removeItem('caltdhy_token');
             sessionStorage.removeItem('caltdhy_user');
-            // Chuyển về trang Welcome
-            window.location.href = 'welcome.html';
+            window.location.href = 'index.html';
         }
 
         /* ============================================================
@@ -609,9 +618,11 @@
         ============================================================ */
         (function () {
             try {
-                const user = JSON.parse(localStorage.getItem('caltdhy_user'));
-                if (user && user.username) {
-                    document.getElementById('navUsernameDisplay').textContent = 'Xin chào, ' + user.username;
+                const raw = localStorage.getItem('pcn_user') || localStorage.getItem('caltdhy_user');
+                const user = raw ? JSON.parse(raw) : null;
+                if (user) {
+                    const name = user.name || user.username || '';
+                    if (name) document.getElementById('navUsernameDisplay').textContent = 'Xin chào, ' + name;
                 }
             } catch (e) { /* ignore */ }
         })();

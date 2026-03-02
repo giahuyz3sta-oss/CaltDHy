@@ -967,6 +967,15 @@
 
     <script>
         /* ============================================================
+           AUTH GUARD
+        ============================================================ */
+        (function () {
+            if (!localStorage.getItem('pcn_token')) {
+                window.location.href = 'index.html';
+            }
+        })();
+
+        /* ============================================================
            CONSTANTS & STORAGE KEYS
         ============================================================ */
         const MONTH_NAMES = [
@@ -996,17 +1005,20 @@
             document.getElementById('sd-year-label').textContent = 'Năm ' + now.getFullYear();
 
             try {
-                const user = JSON.parse(localStorage.getItem('caltdhy_user'));
-                if (user && user.username) {
-                    document.getElementById('sd-greeting').textContent = 'Xin chào, ' + user.username + '! 👋';
-                    // Use first letter as avatar
-                    const av = document.getElementById('sd-avatar');
-                    av.textContent = '';
-                    av.style.fontSize = '28px';
-                    av.style.fontWeight = '800';
-                    av.style.color = '#4ade80';
-                    av.style.fontFamily = "'Syne', sans-serif";
-                    av.textContent = user.username.charAt(0).toUpperCase();
+                const raw = localStorage.getItem('pcn_user') || localStorage.getItem('caltdhy_user');
+                const user = raw ? JSON.parse(raw) : null;
+                if (user) {
+                    const name = user.name || user.username || '';
+                    if (name) {
+                        document.getElementById('sd-greeting').textContent = 'Xin chào, ' + name + '! 👋';
+                        const av = document.getElementById('sd-avatar');
+                        av.textContent = '';
+                        av.style.fontSize = '28px';
+                        av.style.fontWeight = '800';
+                        av.style.color = '#4ade80';
+                        av.style.fontFamily = "'Syne', sans-serif";
+                        av.textContent = name.charAt(0).toUpperCase();
+                    }
                 }
             } catch (e) { /* ignore */ }
         })();
@@ -1192,7 +1204,7 @@
         function handleLogout() {
             ['caltdhy_token', 'caltdhy_user', 'pcn_token', 'pcn_user'].forEach(k => localStorage.removeItem(k));
             ['caltdhy_token', 'caltdhy_user'].forEach(k => sessionStorage.removeItem(k));
-            window.location.href = 'welcome.html';
+            window.location.href = 'index.html';
         }
 
         /* ============================================================
