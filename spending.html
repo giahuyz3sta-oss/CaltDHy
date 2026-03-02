@@ -2110,6 +2110,65 @@
                 page.style.transform = 'translateY(0)';
             }));
         });
+        /* ============================================================
+           KẾT NỐI API LẤY DỮ LIỆU TỔNG QUAN (THÊM MỚI BỞI AI)
+        ============================================================ */
+        async function loadOverviewData() {
+            const token = localStorage.getItem('pcn_token');
+            if (!token) return;
+
+            // Lấy tháng năm hiện tại
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+
+            try {
+                // 1. Gọi API lấy dữ liệu chi tiêu trong tháng từ Server Render
+                const res = await fetch(`https://caltdhy.onrender.com/api/spending?year=${year}&month=${month}`, {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+
+                const data = await res.json();
+
+                if (data.success) {
+                    // Khởi tạo tổng 4 danh mục
+                    let totalFood = 0, totalGas = 0, totalCoffee = 0, totalMisc = 0;
+
+                    // Cộng dồn tất cả các ngày trong tháng lại
+                    data.data.forEach(record => {
+                        totalFood += record.food || 0;
+                        totalGas += record.gas || 0;
+                        totalCoffee += record.coffee || 0;
+                        totalMisc += record.misc || 0;
+                    });
+
+                    // 2. Cập nhật số tiền lên giao diện "Trong tháng"
+                    const monthItems = document.querySelectorAll('#monthList .monthly-item');
+                    if (monthItems.length >= 4) {
+                        // Ăn uống
+                        monthItems[0].dataset.amount = totalFood;
+                        document.getElementById('m-amount-0').textContent = totalFood > 0 ? totalFood.toLocaleString('vi-VN') + ' ₫' : '0 ₫';
+                        // Xăng xe
+                        monthItems[1].dataset.amount = totalGas;
+                        document.getElementById('m-amount-1').textContent = totalGas > 0 ? totalGas.toLocaleString('vi-VN') + ' ₫' : '0 ₫';
+                        // Cà phê
+                        monthItems[2].dataset.amount = totalCoffee;
+                        document.getElementById('m-amount-2').textContent = totalCoffee > 0 ? totalCoffee.toLocaleString('vi-VN') + ' ₫' : '0 ₫';
+                        // Linh tinh
+                        monthItems[3].dataset.amount = totalMisc;
+                        document.getElementById('m-amount-3').textContent = totalMisc > 0 ? totalMisc.toLocaleString('vi-VN') + ' ₫' : '0 ₫';
+                    }
+
+                    // 3. Tính lại tổng tiền màu xanh lá
+                    recalcMonth();
+                }
+            } catch (err) {
+                console.error("Lỗi khi tải dữ liệu từ Server:", err);
+            }
+        }
+
+        // Tự động chạy hàm lấy dữ liệu khi mở trang
+        document.addEventListener('DOMContentLoaded', loadOverviewData);
     </script>
     <script>
         if ('serviceWorker' in navigator) {
